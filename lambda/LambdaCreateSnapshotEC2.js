@@ -15,9 +15,9 @@ exports.handler = async (event, context) => {
 
         for (region of regions.Regions){
             var ec2 = new AWS.EC2({region: region.RegionName})
+            var instance, volume, snapShot, des
             
             instances = await ec2.describeInstances().promise()
-            var instance, volume, snapShot, des
 
             if (instances.Reservations.length>0){
                 for ( instance of instances.Reservations[0].Instances) {

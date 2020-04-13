@@ -17,17 +17,15 @@ exports.handler = async (event, context) => {
         for (region of regions.Regions){
 
             var ec2 = new AWS.EC2({region: region.RegionName})
-            var snapshot, result, counter=0
+            var snapshot, result
 
             snapshots = await ec2.describeSnapshots({OwnerIds: [ identity.Account ]}).promise()
-            snapshots.Snapshots.sort((a, b) => (a.StartTime > b.StartTime) ? 1 : -1)
+            snapshots.Snapshots.sort((a, b) => (a.StartTime > b.StartTime) ? 1 : -1)            
+            snapshots = snapshots.Snapshots.slice(0,3)
             
-            for(snapshot of snapshots.Snapshots){
-                counter++
-                if(counter<4){
-                    console.log("snapshot ",snapshot)
-                    result = await ec2.deleteSnapshot({SnapshotId: snapshot.SnapshotId}).promise()
-                }
+            for(snapshot of snapshots){
+                console.log("snapshot ",snapshot)
+                result = await ec2.deleteSnapshot({SnapshotId: snapshot.SnapshotId}).promise()
             }
         }
 
