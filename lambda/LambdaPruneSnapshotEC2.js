@@ -1,32 +1,34 @@
 const AWS = require('aws-sdk')
 const EC2 = new AWS.EC2()
+const sts = new AWS.STS();
+
 
 exports.handler = async (event, context) => {
 
-    var instances   =[]
+    var snapshots   =[]
     var regions     =[]
 
     try {
 
-        var hour = new Date(new Date().toLocaleString("en-US", {timeZone:process.env.TIME_ZONE})).getHours()
-
+        var identity = await sts.getCallerIdentity().promise()
         regions = await EC2.describeRegions().promise()
         var region
 
         for (region of regions.Regions){
-            var ec2 = new AWS.EC2({region: region.RegionName})
-            
-            instances = await ec2.describeInstances(params).promise()
-            var instance, snapShot, des
 
-            if (instances.Reservations.length>0){
-                for ( instance of instances.Reservations[0].Instances) {    
-                    des = "bakup instance ${}, volume ${}, created ${}"                
-                    snapShot =  ec2.createSnapshot({VolumeId:instance.VolumeId, Description: des}).promise() 
-                    console.log("Created snapshot ",snapShot.id)
+            var ec2 = new AWS.EC2({region: region.RegionName})
+            var snapshot, result, counter=0
+
+            snapshots = await ec2.describeSnapshots({OwnerIds: [ identity.Account ]}).promise()
+            snapshots.Snapshots.sort((a, b) => (a.StartTime > b.StartTime) ? 1 : -1)
+            
+            for(snapshot of snapshots.Snapshots){
+                counter++
+                if(counter<4){
+                    console.log("snapshot ",snapshot)
+                    result = await ec2.deleteSnapshot({SnapshotId: snapshot.SnapshotId}).promise()
                 }
             }
-    
         }
 
         return true

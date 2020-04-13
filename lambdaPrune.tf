@@ -86,7 +86,7 @@ resource "aws_lambda_function" "LambdaPruneSnapshotEC2" {
   handler          = "LambdaPruneSnapshotEC2.handler"
   source_code_hash = "${data.archive_file.lambdaPruneSnapshot.output_base64sha256}"
   runtime          = "nodejs10.x"
-  timeout          = 60
+  timeout          = 120
 
 }
 
