@@ -88,6 +88,12 @@ resource "aws_lambda_function" "LambdaCreateSnapshotEC2" {
   runtime          = "nodejs10.x"
   timeout          = 60
 
+  environment {
+    variables = {
+      TIME_ZONE  = "${var.timeZone}"
+    }
+  }
+
 }
 
 resource "aws_lambda_permission" "allowCreateSnapshotEC2Rule" {
