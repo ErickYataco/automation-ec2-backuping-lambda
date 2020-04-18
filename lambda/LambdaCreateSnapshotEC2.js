@@ -3,19 +3,19 @@ const EC2 = new AWS.EC2()
 
 exports.handler = async (event, context) => {
 
-    var instances   =[]
-    var regions     =[]
+    let instances   =[]
+    let regions     =[]
 
     try {
 
-        var hour = new Date(new Date().toLocaleString("en-US", {timeZone:process.env.TIME_ZONE})).getHours()
+        const hour = new Date(new Date().toLocaleString("en-US", {timeZone:process.env.TIME_ZONE})).getHours()
 
         regions = await EC2.describeRegions().promise()
-        var region
+        let region
 
         for (region of regions.Regions){
-            var ec2 = new AWS.EC2({region: region.RegionName})
-            var instance, volume, snapShot, des
+            let ec2 = new AWS.EC2({region: region.RegionName})
+            let instance, volume, snapShot, des
             
             instances = await ec2.describeInstances().promise()
 
